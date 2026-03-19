@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="login-card">
+        <form id="authForm">
+            <h1>Sign in</h1>
+            
+            <div class="field">
+                <label for="identifier">Username / e-mail</label>
+                <input type="text" id="identifier" name="identifier" required autocomplete="username" placeholder="Enter username or email">
+            </div>
+
+            <div class="field">
+                <div class="label-row">
+                    <label for="password">Password</label>
+                    <a href="pwd.html" class="forgot-link">Forgot?</a>
+                </div>
+                <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••">
+            </div>
+
+            <button type="submit" class="login-btn">Sign in</button>
+        </form>
+    </main>
+
+    <script>
+        const authForm = document.getElementById('authForm');
+
+        authForm.onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const credentials = {
+                identifier: document.getElementById('identifier').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(credentials)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    window.location.href = 'svr0.html';
+                } else {
+                    alert(data.error || 'Authentication failed');
+                }
+            } catch (err) {
+                alert('Connection error: Check if the service is running.');
+            }
+        };
+    </script>
+</body>
+</html>
