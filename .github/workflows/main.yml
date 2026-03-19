@@ -1,0 +1,44 @@
+name: Continuous Credential Service
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */4 * * *'
+  push:
+    branches: [ main ]
+
+jobs:
+  auth-service:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Environment
+        run: |
+          if [ -z "${{ secrets.USER_DATA }}" ]; then
+            echo "CRITICAL ERROR: USER_DATA secret not found."
+            exit 1
+          fi
+
+      - name: Persistent Execution Loop
+        timeout-minutes: 350
+        run: |
+          echo "Service started..."
+          
+          # Your persistent logic here
+          # Example: node server.js & 
+          
+          sleep 340m
+          echo "Cycle near limit. Re-triggering workflow..."
+
+      - name: Keep Alive
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run main.yml
