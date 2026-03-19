@@ -15,30 +15,21 @@ jobs:
       actions: write
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate Environment
+      - name: Setup and Run
+        env:
+          USER_DATA: ${{ secrets.USER_DATA }}
         run: |
-          if [ -z "${{ secrets.USER_DATA }}" ]; then
-            echo "CRITICAL ERROR: USER_DATA secret not found."
-            exit 1
-          fi
-
-      - name: Persistent Execution Loop
-        timeout-minutes: 350
-        run: |
-          echo "Service started..."
-          
-          # Your persistent logic here
-          # Example: node server.js & 
-          
+          npm install express localtunnel
+          node server.js &
+          npx localtunnel --port 3000 &
           sleep 340m
-          echo "Cycle near limit. Re-triggering workflow..."
 
       - name: Keep Alive
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh workflow run main.yml
+          gh workflow run main.yml --ref ${{ github.ref_name }}
